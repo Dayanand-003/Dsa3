@@ -1,0 +1,120 @@
+Practical 7.cpp
+
+#include <iostream>
+#include <list>
+#include <unordered_map>
+#include <queue>
+using namespace std;
+
+class FlightGraph {
+private:
+    unordered_map<string, list<pair<string, int>>> adjList;  // <city, <neighbor, cost>>
+    unordered_map<string, bool> visited;
+
+public:
+    // Add a flight (edge) between two cities with a cost (flight time or fuel)
+    void addFlight(const string& cityA, const string& cityB, int cost) {
+        adjList[cityA].push_back({cityB, cost});
+        adjList[cityB].push_back({cityA, cost});
+    }
+
+    // Perform BFS to check if the graph is connected
+    bool isConnected() {
+        visited.clear();
+        if (adjList.empty()) return false;
+
+        // Start BFS from the first city in the graph
+        string startCity = adjList.begin()->first;
+        queue<string> q;
+        q.push(startCity);
+        visited[startCity] = true;
+
+        while (!q.empty()) {
+            string city = q.front();
+            q.pop();
+
+            // Visit all neighbors
+            for (const auto& neighbor : adjList[city]) {
+                if (!visited[neighbor.first]) {
+                    visited[neighbor.first] = true;
+                    q.push(neighbor.first);
+                }
+            }
+        }
+
+        // Check if all cities were visited
+        for (const auto& city : adjList) {
+            if (!visited[city.first]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Display all flight paths (edges) in the graph
+    void displayFlights() {
+        for (const auto& city : adjList) {
+            cout << city.first << " -> ";
+            for (const auto& neighbor : city.second) {
+                cout << neighbor.first << "(Cost: " << neighbor.second << ") ";
+            }
+            cout << endl;
+        }
+    }
+
+    // Display menu
+    void showMenu() {
+        cout << "\nFlight Path Graph Menu:\n";
+        cout << "1. Add Flight\n";
+        cout << "2. Check if Graph is Connected\n";
+        cout << "3. Display All Flights\n";
+        cout << "4. Exit\n";
+    }
+};
+
+int main() {
+    FlightGraph g;
+    int choice;
+    string cityA, cityB;
+    int cost;
+
+    do {
+        g.showMenu();
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                cout << "Enter city A, city B, and cost (e.g., CityA CityB 100): ";
+                cin >> cityA >> cityB >> cost;
+                g.addFlight(cityA, cityB, cost);
+                break;
+            }
+
+            case 2: {
+                if (g.isConnected()) {
+                    cout << "The graph is connected.\n";
+                } else {
+                    cout << "The graph is not connected.\n";
+                }
+                break;
+            }
+
+            case 3: {
+                cout << "Displaying all flights:\n";
+                g.displayFlights();
+                break;
+            }
+
+            case 4:
+                cout << "Exiting...\n";
+                break;
+
+            default:
+                cout << "Invalid choice, please try again.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}

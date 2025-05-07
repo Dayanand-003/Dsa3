@@ -1,0 +1,111 @@
+Practical 3.cpp
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int data;
+    Node *left, *right;
+
+    Node(int val) {
+        data = val;
+        left = right = nullptr;
+    }
+};
+
+class BST {
+public:
+    Node* root;
+
+    BST() { root = nullptr; }
+
+    Node* insert(Node* node, int val) {
+        if (!node) return new Node(val);
+        if (val < node->data)
+            node->left = insert(node->left, val);
+        else
+            node->right = insert(node->right, val);
+        return node;
+    }
+
+    void insert(int val) {
+        root = insert(root, val);
+    }
+
+    void inorder(Node* node) {
+        if (node) {
+            inorder(node->left);
+            cout << node->data << " ";
+            inorder(node->right);
+        }
+    }
+
+    int height(Node* node) {
+        if (!node) return 0;
+        return 1 + max(height(node->left), height(node->right));
+    }
+
+    int findMin(Node* node) {
+        if (!node) return -1;
+        while (node->left)
+            node = node->left;
+        return node->data;
+    }
+
+    void mirror(Node* node) {
+        if (!node) return;
+        swap(node->left, node->right);
+        mirror(node->left);
+        mirror(node->right);
+    }
+
+    bool search(Node* node, int val) {
+        if (!node) return false;
+        if (node->data == val) return true;
+        if (val < node->data)
+            return search(node->left, val);
+        else
+            return search(node->right, val);
+    }
+};
+
+int main() {
+    BST tree;
+    int choice, val;
+    cout << "Enter values to create BST (end with -1): ";
+    while (cin >> val && val != -1)
+        tree.insert(val);
+
+    do {
+        cout << "\nMenu:\n1. Insert\n2. Height\n3. Find Min\n4. Mirror\n5. Search\n6. Inorder Display\n7. Exit\nChoice: ";
+        cin >> choice;
+        switch (choice) {
+            case 1:
+                cout << "Enter value to insert: ";
+                cin >> val;
+                tree.insert(val);
+                break;
+            case 2:
+                cout << "Height (longest path): " << tree.height(tree.root) << "\n";
+                break;
+            case 3:
+                cout << "Minimum value: " << tree.findMin(tree.root) << "\n";
+                break;
+            case 4:
+                tree.mirror(tree.root);
+                cout << "Tree mirrored.\n";
+                break;
+            case 5:
+                cout << "Enter value to search: ";
+                cin >> val;
+                cout << (tree.search(tree.root, val) ? "Found\n" : "Not found\n");
+                break;
+            case 6:
+                cout << "Inorder: ";
+                tree.inorder(tree.root);
+                cout << "\n";
+                break;
+        }
+    } while (choice != 7);
+
+    return 0;
+}

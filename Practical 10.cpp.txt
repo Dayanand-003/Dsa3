@@ -1,0 +1,73 @@
+Practical 10.cpp
+
+#include <iostream>
+#include <queue>
+#include <vector>
+using namespace std;
+
+class ExamMarks {
+private:
+    priority_queue<int> maxHeap;  // For maximum marks (max heap)
+    priority_queue<int, vector<int>, greater<int>> minHeap;  // For minimum marks (min heap)
+
+public:
+    // Function to add marks to the heaps
+    void addMarks(int mark) {
+        maxHeap.push(mark);   // Insert into max heap
+        minHeap.push(mark);   // Insert into min heap
+    }
+
+    // Function to find the maximum mark
+    int getMaxMark() {
+        return maxHeap.top();  // Top element in max heap is the maximum mark
+    }
+
+    // Function to find the minimum mark
+    int getMinMark() {
+        return minHeap.top();  // Top element in min heap is the minimum mark
+    }
+
+    // Display the menu
+    void showMenu() {
+        cout << "\nExam Marks Menu:\n";
+        cout << "1. Enter Student Marks\n";
+        cout << "2. Display Maximum Marks\n";
+        cout << "3. Display Minimum Marks\n";
+        cout << "4. Exit\n";
+    }
+};
+
+int main() {
+    ExamMarks marks;
+    int choice, mark;
+
+    do {
+        marks.showMenu();
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                cout << "Enter student mark: ";
+                cin >> mark;
+                marks.addMarks(mark);
+                break;
+            }
+            case 2: {
+                cout << "Maximum marks obtained: " << marks.getMaxMark() << endl;
+                break;
+            }
+            case 3: {
+                cout << "Minimum marks obtained: " << marks.getMinMark() << endl;
+                break;
+            }
+            case 4:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}

@@ -1,0 +1,172 @@
+#include <iostream>
+#include <list>
+#include <queue>
+#include <unordered_map>
+#include <vector>
+using namespace std;
+
+class Graph {
+private:
+    unordered_map<string, list<string>> adjList;
+    unordered_map<string, int> index_map;
+    vector<vector<int>> adjMatrix;
+    vector<string> landmarks;
+
+public:
+    // Initialize the graph with landmarks
+    void initializeGraph(const vector<string>& landmarks) {
+        int n = landmarks.size();
+        adjMatrix.resize(n, vector<int>(n, 0));
+        this->landmarks = landmarks;
+
+        for (int i = 0; i < n; ++i) {
+            index_map[landmarks[i]] = i;
+        }
+    }
+
+    // Add an edge between two landmarks
+    void addEdge(const string& landmark1, const string& landmark2) {
+        adjList[landmark1].push_back(landmark2);
+        adjList[landmark2].push_back(landmark1);
+
+        int idx1 = index_map[landmark1];
+        int idx2 = index_map[landmark2];
+        adjMatrix[idx1][idx2] = 1;
+        adjMatrix[idx2][idx1] = 1;
+    }
+
+    // DFS using Adjacency Matrix
+    void DFSMatrix(int vertex, vector<bool>& visited) {
+        visited[vertex] = true;
+        cout << landmarks[vertex] << " ";
+
+        for (int i = 0; i < adjMatrix.size(); ++i) {
+            if (adjMatrix[vertex][i] == 1 && !visited[i]) {
+                DFSMatrix(i, visited);
+            }
+        }
+    }
+
+    // DFS using Adjacency List
+    void DFSList(const string& landmark, unordered_map<string, bool>& visited) {
+        visited[landmark] = true;
+        cout << landmark << " ";
+
+        for (const string& neighbor : adjList[landmark]) {
+            if (!visited[neighbor]) {
+                DFSList(neighbor, visited);
+            }
+        }
+    }
+
+    // BFS using Adjacency List
+    void BFSList(const string& start) {
+        unordered_map<string, bool> visited;
+        queue<string> q;
+        q.push(start);
+        visited[start] = true;
+
+        while (!q.empty()) {
+            string landmark = q.front();
+            q.pop();
+            cout << landmark << " ";
+
+            for (const string& neighbor : adjList[landmark]) {
+                if (!visited[neighbor]) {
+                    q.push(neighbor);
+                    visited[neighbor] = true;
+                }
+            }
+        }
+    }
+
+    // Display Adjacency Matrix
+    void displayMatrix() {
+        for (const auto& row : adjMatrix) {
+            for (int val : row) {
+                cout << val << " ";
+            }
+            cout << endl;
+        }
+    }
+
+    // Show Landmark Menu
+    void showMenu() {
+        cout << "\nGraph Operations Menu:\n";
+        cout << "1. Add Edge\n";
+        cout << "2. Perform DFS (Adjacency Matrix)\n";
+        cout << "3. Perform DFS (Adjacency List)\n";
+        cout << "4. Perform BFS (Adjacency List)\n";
+        cout << "5. Display Adjacency Matrix\n";
+        cout << "6. Exit\n";
+    }
+};
+
+int main() {
+    Graph g;
+    vector<string> landmarks = {"College", "Library", "Park", "Cafeteria", "Auditorium"};
+
+    g.initializeGraph(landmarks);
+
+    // User Menu Interaction
+    int choice;
+    string landmark1, landmark2;
+
+    do {
+        g.showMenu();
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter two landmarks to add an edge (e.g., College Library): ";
+                cin >> landmark1 >> landmark2;
+                g.addEdge(landmark1, landmark2);
+                break;
+            
+            case 2: {
+                cout << "Enter starting index for DFS (0 - College, 1 - Library, etc.): ";
+                int index;
+                cin >> index;
+                vector<bool> visited(landmarks.size(), false);
+                cout << "DFS using Adjacency Matrix:\n";
+                g.DFSMatrix(index, visited);
+                cout << endl;
+                break;
+            }
+
+            case 3: {
+                cout << "Enter starting landmark for DFS (e.g., College): ";
+                cin >> landmark1;
+                unordered_map<string, bool> visitedList;
+                cout << "DFS using Adjacency List:\n";
+                g.DFSList(landmark1, visitedList);
+                cout << endl;
+                break;
+            }
+
+            case 4: {
+                cout << "Enter starting landmark for BFS (e.g., College): ";
+                cin >> landmark1;
+                cout << "BFS using Adjacency List:\n";
+                g.BFSList(landmark1);
+                cout << endl;
+                break;
+            }
+
+            case 5:
+                cout << "Adjacency Matrix representation:\n";
+                g.displayMatrix();
+                break;
+
+            case 6:
+                cout << "Exiting...\n";
+                break;
+
+            default:
+                cout << "Invalid choice, please try again.\n";
+        }
+    } while (choice != 6);
+
+    return 0;
+}

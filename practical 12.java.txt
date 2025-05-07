@@ -1,0 +1,157 @@
+practical 12.java
+
+import java.io.*;
+import java.util.*;
+
+class Student {
+    String rollNumber;
+    String name;
+    String division;
+    String address;
+
+    // Constructor to initialize student details
+    public Student(String rollNumber, String name, String division, String address) {
+        this.rollNumber = rollNumber;
+        this.name = name;
+        this.division = division;
+        this.address = address;
+    }
+
+    // Method to display student details
+    public void display() {
+        System.out.println("Roll Number: " + rollNumber);
+        System.out.println("Name: " + name);
+        System.out.println("Division: " + division);
+        System.out.println("Address: " + address);
+    }
+
+    // Method to save student to a file
+    public void saveToFile(PrintWriter writer) {
+        writer.println(rollNumber + "," + name + "," + division + "," + address);
+    }
+}
+
+public class StudentFileManagement {
+    private static final String FILE_NAME = "students.txt";
+
+    // Method to display the menu
+    public static void showMenu() {
+        System.out.println("\nStudent File Management Menu:");
+        System.out.println("1. Add Student");
+        System.out.println("2. Delete Student");
+        System.out.println("3. Display Student Information");
+        System.out.println("4. Exit");
+        System.out.print("Enter your choice: ");
+    }
+
+    // Method to add a student
+    public static void addStudent() throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter roll number: ");
+        String rollNumber = scanner.nextLine();
+        System.out.print("Enter name: ");
+        String name = scanner.nextLine();
+        System.out.print("Enter division: ");
+        String division = scanner.nextLine();
+        System.out.print("Enter address: ");
+        String address = scanner.nextLine();
+
+        Student student = new Student(rollNumber, name, division, address);
+        FileWriter fileWriter = new FileWriter(FILE_NAME, true);
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+        student.saveToFile(printWriter);
+        printWriter.close();
+        System.out.println("Student added successfully.");
+    }
+
+    // Method to delete a student by roll number
+    public static void deleteStudent() throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter roll number of the student to delete: ");
+        String rollNumber = scanner.nextLine();
+        
+        File inputFile = new File(FILE_NAME);
+        File tempFile = new File("temp.txt");
+        
+        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+        PrintWriter writer = new PrintWriter(new FileWriter(tempFile));
+        
+        String line;
+        boolean found = false;
+        
+        while ((line = reader.readLine()) != null) {
+            String[] details = line.split(",");
+            if (details[0].equals(rollNumber)) {
+                found = true;
+            } else {
+                writer.println(line);
+            }
+        }
+        
+        reader.close();
+        writer.close();
+        
+        if (found) {
+            inputFile.delete();
+            tempFile.renameTo(inputFile);
+            System.out.println("Student record deleted successfully.");
+        } else {
+            System.out.println("Student record not found.");
+        }
+    }
+
+    // Method to display student information
+    public static void displayStudent() throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter roll number to search: ");
+        String rollNumber = scanner.nextLine();
+        
+        BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME));
+        String line;
+        boolean found = false;
+        
+        while ((line = reader.readLine()) != null) {
+            String[] details = line.split(",");
+            if (details[0].equals(rollNumber)) {
+                found = true;
+                Student student = new Student(details[0], details[1], details[2], details[3]);
+                student.display();
+                break;
+            }
+        }
+        
+        reader.close();
+        
+        if (!found) {
+            System.out.println("Student record not found.");
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+        
+        do {
+            showMenu();
+            choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1:
+                    addStudent();
+                    break;
+                case 2:
+                    deleteStudent();
+                    break;
+                case 3:
+                    displayStudent();
+                    break;
+                case 4:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 4);
+    }
+}

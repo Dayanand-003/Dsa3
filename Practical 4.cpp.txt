@@ -1,0 +1,141 @@
+Practical 4.cpp
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Node {
+    string key;
+    string meaning;
+    Node* left;
+    Node* right;
+
+    Node(string k, string m) : key(k), meaning(m), left(nullptr), right(nullptr) {}
+};
+
+class Dictionary {
+private:
+    Node* root;
+
+    Node* insert(Node* node, string key, string meaning) {
+        if (node == nullptr)
+            return new Node(key, meaning);
+
+        if (key < node->key)
+            node->left = insert(node->left, key, meaning);
+        else if (key > node->key)
+            node->right = insert(node->right, key, meaning);
+        else
+            node->meaning = meaning;  // Update existing key with new meaning
+
+        return node;
+    }
+
+    Node* deleteNode(Node* root, string key) {
+        if (root == nullptr) return root;
+
+        if (key < root->key)
+            root->left = deleteNode(root->left, key);
+        else if (key > root->key)
+            root->right = deleteNode(root->right, key);
+        else {
+            if (root->left == nullptr) {
+                Node* temp = root->right;
+                delete root;
+                return temp;
+            } else if (root->right == nullptr) {
+                Node* temp = root->left;
+                delete root;
+                return temp;
+            }
+
+            Node* temp = minValueNode(root->right);
+            root->key = temp->key;
+            root->meaning = temp->meaning;
+            root->right = deleteNode(root->right, temp->key);
+        }
+        return root;
+    }
+
+    Node* minValueNode(Node* node) {
+        Node* current = node;
+        while (current && current->left != nullptr)
+            current = current->left;
+        return current;
+    }
+
+    void inorder(Node* node) {
+        if (node == nullptr) return;
+        inorder(node->left);
+        cout << node->key << " : " << node->meaning << endl;
+        inorder(node->right);
+    }
+
+    void reverseInorder(Node* node) {
+        if (node == nullptr) return;
+        reverseInorder(node->right);
+        cout << node->key << " : " << node->meaning << endl;
+        reverseInorder(node->left);
+    }
+
+public:
+    Dictionary() : root(nullptr) {}
+
+    void insert(string key, string meaning) {
+        root = insert(root, key, meaning);
+    }
+
+    void deleteKeyword(string key) {
+        root = deleteNode(root, key);
+    }
+
+    void displayAscending() {
+        cout << "Dictionary in Ascending Order:\n";
+        inorder(root);
+    }
+
+    void displayDescending() {
+        cout << "Dictionary in Descending Order:\n";
+        reverseInorder(root);
+    }
+};
+
+int main() {
+    Dictionary dict;
+    int choice;
+    string key, meaning;
+
+    do {
+        cout << "\n1. Insert Keyword\n2. Delete Keyword\n3. Display Ascending\n4. Display Descending\n5. Exit\nChoose an option: ";
+        cin >> choice;
+        cin.ignore();  // Ignore the newline character after input choice
+
+        switch (choice) {
+            case 1:
+                cout << "Enter keyword: ";
+                getline(cin, key);
+                cout << "Enter meaning: ";
+                getline(cin, meaning);
+                dict.insert(key, meaning);
+                break;
+            case 2:
+                cout << "Enter keyword to delete: ";
+                getline(cin, key);
+                dict.deleteKeyword(key);
+                break;
+            case 3:
+                dict.displayAscending();
+                break;
+            case 4:
+                dict.displayDescending();
+                break;
+            case 5:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice! Please try again.\n";
+        }
+    } while (choice != 5);
+
+    return 0;
+}
